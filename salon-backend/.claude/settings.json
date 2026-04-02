@@ -1,0 +1,87 @@
+{
+  "project": "salon-system",
+  "description": "Salon System — Angular 19 + Spring Boot 3.2 + Java 17 + MySQL 8",
+  "language": "vi",
+  "codeLanguage": "typescript+java",
+
+  "stack": {
+    "frontend": "Angular 19 + Tailwind CSS 3 + Angular Material 19 + Lucide Angular",
+    "backend": "Spring Boot 3.2 + Java 17 + Spring Security 6 + Spring Data JPA",
+    "database": "MySQL 8"
+  },
+
+  "modules": [
+    "auth",
+    "user",
+    "staff",
+    "appointment",
+    "service",
+    "product",
+    "cart",
+    "order",
+    "address",
+    "payment",
+    "notification",
+    "review"
+  ],
+
+  "roles": ["USER", "ADMIN"],
+
+  "apiBaseUrl": {
+    "dev": "http://localhost:8080/api/v1",
+    "prod": "https://api.salon.com/api/v1"
+  },
+
+  "defaultSkills": [],
+
+  "hooks": {
+    "pre-response": {
+      "enabled": false,
+      "description": "Kiểm tra code quality trước khi Claude trả lời",
+      "rules": {
+        "angular": [
+          "Không dùng TypeScript any — dùng type cụ thể hoặc unknown",
+          "Không có console.log trong production code",
+          "Không dùng NgModule — chỉ Standalone Components",
+          "Không inline style — chỉ Tailwind classes",
+          "Không .subscribe() thủ công nếu có thể dùng async pipe",
+          "Component phải có interface/type rõ ràng cho @Input/@Output",
+          "Lazy load tất cả feature routes"
+        ],
+        "springboot": [
+          "Không dùng @Autowired — dùng @RequiredArgsConstructor",
+          "Không expose Entity ra API — phải qua DTO",
+          "Không có System.out.println — dùng @Slf4j log",
+          "Response phải wrap bằng ApiResponse<T>",
+          "Endpoint admin phải có @PreAuthorize(\"hasRole('ADMIN')\")",
+          "Không để user A truy cập data của user B — check ownership"
+        ]
+      }
+    },
+
+    "post-response": {
+      "enabled": false,
+      "description": "Kiểm tra naming convention sau khi Claude sinh code",
+      "rules": {
+        "angular": [
+          "Component: PascalCase — BookingConfirmComponent",
+          "File: kebab-case — booking-confirm.component.ts",
+          "Service: camelCase + suffix — appointmentService",
+          "Interface/Model: PascalCase — AppointmentModel",
+          "Enum: PascalCase — AppointmentStatus",
+          "Constant: UPPER_SNAKE_CASE",
+          "Không có magic numbers — đặt tên constant"
+        ],
+        "springboot": [
+          "Class: PascalCase — AppointmentServiceImpl",
+          "Method/Variable: camelCase — getAppointmentById",
+          "Package: lowercase — com.salon.module.appointment",
+          "DTO suffix rõ ràng — BookingRequest, AppointmentResponse",
+          "Không có magic strings — dùng ErrorCode enum"
+        ]
+      }
+    }
+  },
+
+  "notes": "Bật hooks bằng cách đặt enabled: true khi cần kiểm tra nghiêm ngặt"
+}
