@@ -124,6 +124,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Sinh OTP 6 chữ số
         String otp = String.format("%06d", new SecureRandom().nextInt(1_000_000));
+        log.info("============== DEV MỌDE: OTP cho {} là: {} ==============", email, otp);
 
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .user(user)

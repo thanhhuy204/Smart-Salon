@@ -39,6 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // context-path=/api/v1 nên Spring Security thấy path không có prefix đó
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/v1/upload").permitAll()
+                        .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

@@ -31,6 +31,23 @@ public enum ErrorCode {
     TOKEN_EXPIRED(401, "Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại"),
     FORBIDDEN(403, "Bạn không có quyền truy cập khu vực này"),
 
+    // ===== Service =====
+    CATEGORY_NOT_FOUND(404, "Không tìm thấy danh mục"),
+    SERVICE_NOT_FOUND(404, "Không tìm thấy dịch vụ"),
+    SERVICE_HAS_APPOINTMENT(409, "Dịch vụ đang được tham chiếu, hãy tắt hiển thị thay vì xóa"),
+
+    // ===== Staff =====
+    STAFF_NOT_FOUND(404, "Không tìm thấy thợ"),
+    STAFF_HAS_APPOINTMENT(409, "Thợ đang có lịch hẹn trong khoảng thời gian này, không thể khóa"),
+    STAFF_CANNOT_DELETE(409, "Thợ đang có lịch hẹn, vui lòng vô hiệu hóa thay vì xóa"),
+
+    // ===== Appointment =====
+    APPOINTMENT_NOT_FOUND(404, "Không tìm thấy lịch hẹn"),
+    SLOT_UNAVAILABLE(409, "Khung giờ này đã được đặt hoặc bị khóa"),
+    INVALID_APPOINTMENT_STATUS(400, "Trạng thái lịch hẹn không hợp lệ cho thao tác này"),
+    STAFF_REQUIRED_FOR_CONFIRM(400, "Vui lòng chọn thợ trước khi xác nhận"),
+    REASON_REQUIRED(400, "Lý do hủy/từ chối không được để trống"),
+
     // ===== General =====
     NOT_FOUND(404, "Không tìm thấy dữ liệu"),
     INTERNAL_ERROR(500, "Lỗi hệ thống, vui lòng thử lại");
