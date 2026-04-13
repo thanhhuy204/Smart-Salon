@@ -40,12 +40,10 @@ public class SalonServiceServiceImpl implements SalonServiceService {
     @Override
     @Transactional
     public ServiceCategoryResponse createCategory(ServiceCategoryRequest request) {
-        ServiceCategory category = serviceCategoryMapper.toEntity(request);
-        if (request.getIsActive() != null) {
-            category.setIsActive(request.getIsActive());
-        } else {
-            category.setIsActive(true);
-        }
+        ServiceCategory category = new ServiceCategory();
+        category.setName(request.getName());
+        category.setSortOrder(request.getSortOrder() != null ? request.getSortOrder() : (byte) 0);
+        category.setIsActive(request.getIsActive() != null ? request.getIsActive() : true);
         category = serviceCategoryRepository.save(category);
         return serviceCategoryMapper.toResponse(category);
     }
@@ -88,7 +86,9 @@ public class SalonServiceServiceImpl implements SalonServiceService {
         List<SalonService> allServices = salonServiceRepository.findAll();
 
         Map<Integer, List<SalonServiceResponse>> servicesByCatId = allServices.stream()
+                .filter(s -> s.getCategory() != null && s.getCategory().getId() != null)
                 .map(salonServiceMapper::toResponse)
+                .filter(r -> r.getCategoryId() != null)
                 .collect(Collectors.groupingBy(SalonServiceResponse::getCategoryId));
 
         return categories.stream().map(cat -> {

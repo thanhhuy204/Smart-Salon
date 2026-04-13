@@ -13,6 +13,8 @@ import java.util.List;
 public interface AppointmentMapper {
 
     @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "customerName", source = "user.fullName")
+    @Mapping(target = "customerPhone", source = "user.phone")
     @Mapping(target = "staffId", source = "staff.id")
     @Mapping(target = "staffName", source = "staff.fullName")
     AppointmentResponse toResponse(Appointment entity);

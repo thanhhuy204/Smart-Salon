@@ -13,6 +13,8 @@ import java.util.List;
 public class AppointmentResponse {
     private Long id;
     private Long userId;
+    private String customerName;
+    private String customerPhone;
     private Integer staffId;
     private String staffName;
     private LocalDate apptDate;
