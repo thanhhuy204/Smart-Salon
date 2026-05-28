@@ -1,0 +1,81 @@
+<div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-3xl mx-auto">
+    <!-- Header & Stepper -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 text-center mb-8">Đặt Lịch Hẹn</h1>
+      
+      <div class="flex items-center justify-between relative">
+        <div class="absolute left-0 top-1/2 -z-10 w-full h-0.5 bg-gray-200 -translate-y-1/2"></div>
+        <div class="absolute left-0 top-1/2 -z-10 h-0.5 bg-gray-900 transition-all duration-300 -translate-y-1/2" 
+             [style.width]="((currentStep() - 1) / 3) * 100 + '%'"></div>
+        
+        <div *ngFor="let step of steps; let i = index" class="relative group cursor-pointer" (click)="goToStep(i + 1)">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-300 bg-white"
+               [ngClass]="{
+                 'border-gray-900 text-gray-900': currentStep() === i + 1,
+                 'border-gray-900 bg-gray-900 text-white': currentStep() > i + 1,
+                 'border-gray-300 text-gray-400': currentStep() < i + 1
+               }">
+            <span *ngIf="currentStep() <= i + 1" class="font-semibold">{{ i + 1 }}</span>
+            <svg *ngIf="currentStep() > i + 1" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <span class="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs font-medium whitespace-nowrap"
+                [ngClass]="currentStep() >= i + 1 ? 'text-gray-900' : 'text-gray-500'">
+            {{ step.title }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Banner -->
+    <div *ngIf="errorMessage()" class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-md">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">{{ errorMessage() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 min-h-[400px]">
+      
+      <app-step-service 
+        *ngIf="currentStep() === 1" 
+        [selectedServices]="bookingState().services"
+        (onNext)="onServicesSelected($event)">
+      </app-step-service>
+
+      <app-step-staff 
+        *ngIf="currentStep() === 2"
+        [selectedStaff]="bookingState().staff"
+        (onNext)="onStaffSelected($event)"
+        (onBack)="goBack()">
+      </app-step-staff>
+
+      <app-step-time 
+        *ngIf="currentStep() === 3"
+        [staff]="bookingState().staff"
+        [selectedDate]="bookingState().date"
+        [selectedTime]="bookingState().time"
+        (onNext)="onTimeSelected($event)"
+        (onBack)="goBack()">
+      </app-step-time>
+
+      <app-step-confirm 
+        *ngIf="currentStep() === 4"
+        [state]="bookingState()"
+        [isSubmitting]="isSubmitting()"
+        (onConfirm)="submitBooking()"
+        (onBack)="goBack()">
+      </app-step-confirm>
+
+    </div>
+  </div>
+</div>

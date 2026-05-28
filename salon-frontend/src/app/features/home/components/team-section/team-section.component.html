@@ -1,0 +1,26 @@
+<section class="bg-[#F8F5F0] py-24 overflow-hidden">
+
+  <div class="text-center mb-14 px-6 flex flex-col items-center gap-4">
+    <span class="sec-eyebrow">Đội ngũ</span>
+    <h2 class="sec-title text-4xl md:text-5xl text-gray-900">Những Người Nghệ Nhân</h2>
+    <div class="sec-bar-center"></div>
+  </div>
+
+  <div class="marquee-wrapper" aria-hidden="true">
+    <div class="marquee-track">
+      @for (barber of barbers; track barber.name) {
+        <div class="marquee-item">
+          <img [src]="barber.image" [alt]="'Barber ' + barber.name"
+               class="w-full h-full object-cover object-top" loading="lazy" />
+        </div>
+      }
+      @for (barber of barbers; track 'clone-' + barber.name) {
+        <div class="marquee-item">
+          <img [src]="barber.image" [alt]="'Barber ' + barber.name"
+               class="w-full h-full object-cover object-top" loading="lazy" />
+        </div>
+      }
+    </div>
+  </div>
+
+</section>

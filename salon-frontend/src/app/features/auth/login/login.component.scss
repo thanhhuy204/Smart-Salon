@@ -1,0 +1,28 @@
+.form-input {
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fff;
+
+  &:focus {
+    border-color: #C9A447;
+    box-shadow: 0 0 0 3px rgba(201, 164, 71, 0.15);
+  }
+
+  &.ng-touched.ng-invalid {
+    border-color: #F87171;
+    background-color: #FEF2F2;
+  }
+}
+
+.form-input-wrap {
+  position: relative;
+
+  .form-input {
+    padding-right: 44px;
+  }
+}

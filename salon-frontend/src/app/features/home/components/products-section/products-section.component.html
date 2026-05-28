@@ -1,0 +1,40 @@
+<section class="bg-[#111] py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-col items-center text-center mb-14 gap-4">
+      <span class="sec-eyebrow">Sản phẩm</span>
+      <h2 class="sec-title-light text-4xl md:text-5xl">Sản Phẩm Chính Hãng</h2>
+      <div class="sec-bar-center"></div>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      @for (product of products; track product.name) {
+        <div class="product-card">
+          <div class="product-img-wrap">
+            <img [src]="product.image" [alt]="product.name"
+                 class="product-img" loading="lazy" />
+          </div>
+          <div class="product-body">
+            <h3 class="product-name">{{ product.name }}</h3>
+            <p class="product-desc">{{ product.description }}</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- View all -->
+    <div class="text-center mt-14">
+      <a
+        routerLink="/shop"
+        class="inline-block px-12 py-4 border border-[#C9A447] text-[#C9A447] text-xs
+               font-semibold uppercase tracking-widest
+               hover:bg-[#C9A447] hover:text-[#111] transition-colors duration-300"
+      >
+        Xem tất cả sản phẩm →
+      </a>
+    </div>
+
+  </div>
+</section>

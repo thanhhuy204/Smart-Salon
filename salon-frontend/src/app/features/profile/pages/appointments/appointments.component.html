@@ -1,0 +1,256 @@
+<div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900">Lịch Hẹn Của Tôi</h1>
+    <p class="text-gray-500 mt-1 text-sm">Quản lý và theo dõi các lịch trình cắt tóc của bạn</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="flex space-x-1 bg-gray-100/50 p-1 rounded-xl mb-8 border border-gray-200">
+    <button (click)="setTab('UPCOMING')" 
+            [ngClass]="activeTab() === 'UPCOMING' ? 'bg-white shadow-sm text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+            class="flex-1 py-2.5 rounded-lg text-sm transition-all focus:outline-none">
+      Sắp tới
+    </button>
+    <button (click)="setTab('COMPLETED')"
+            [ngClass]="activeTab() === 'COMPLETED' ? 'bg-white shadow-sm text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+            class="flex-1 py-2.5 rounded-lg text-sm transition-all focus:outline-none">
+      Hoàn thành
+    </button>
+    <button (click)="setTab('CANCELLED')"
+            [ngClass]="activeTab() === 'CANCELLED' ? 'bg-white shadow-sm text-gray-900 font-semibold' : 'text-gray-500 hover:text-gray-700'"
+            class="flex-1 py-2.5 rounded-lg text-sm transition-all focus:outline-none">
+      Đã hủy
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading()" class="space-y-4">
+    <div *ngFor="let i of [1,2,3]" class="h-32 bg-gray-100 rounded-2xl animate-pulse"></div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading() && appointments().length === 0" class="text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm animate-fade-in">
+    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+    </div>
+    <h3 class="text-lg font-bold text-gray-900 mb-1">Không có lịch hẹn nào</h3>
+    <p class="text-gray-500 mb-6">Bạn chưa có lịch hẹn nào trong mục này.</p>
+    <a routerLink="/booking" class="inline-flex px-6 py-2.5 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors">
+      Đặt lịch ngay
+    </a>
+  </div>
+
+  <!-- List -->
+  <div *ngIf="!isLoading() && appointments().length > 0" class="space-y-5 animate-fade-in">
+    <div *ngFor="let appt of appointments()" class="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm transition-all hover:shadow-md hover:border-gray-200">
+      
+      <!-- Card Header: ID, Status, Price -->
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-5 pb-5 border-b border-gray-50">
+        <div class="flex items-center gap-3">
+          <span class="text-lg font-bold text-gray-900">#{{ appt.id }}</span>
+          <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ring-1 ring-inset {{ getStatusClass(appt.status) }}">
+            {{ getStatusLabel(appt.status) }}
+          </span>
+        </div>
+        <div class="text-lg font-black text-gray-900">
+          {{ appt.totalPrice | number:'1.0-0' }} đ
+        </div>
+      </div>
+
+      <!-- Card Body: Date/Time & Stylist -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="space-y-3">
+          <div class="flex items-center text-gray-600">
+            <svg class="w-5 h-5 mr-3 text-[#C9A447]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span class="text-sm font-semibold">
+              Ngày {{ appt.apptDate | date:'dd/MM/yyyy' }} &nbsp;•&nbsp; {{ appt.startTime.substring(0,5) }}
+            </span>
+          </div>
+          <div class="flex items-center text-gray-600">
+            <svg class="w-5 h-5 mr-3 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+            <span class="text-sm font-medium">
+              Stylist: <span class="text-gray-900 font-bold">{{ appt.staffName || 'Hệ thống tự xếp' }}</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-3 w-full md:w-auto">
+          <button (click)="viewDetails(appt.id)" 
+                  class="flex-1 md:flex-none px-6 py-2.5 bg-gray-50 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-100 transition-all active:scale-95 border border-gray-100">
+            Chi tiết
+          </button>
+          
+          <button *ngIf="appt.status === 'PENDING'" 
+                  (click)="openCancelModal(appt.id)"
+                  class="flex-1 md:flex-none px-6 py-2.5 bg-red-50 text-red-600 rounded-xl text-sm font-bold hover:bg-red-100 transition-all active:scale-95 border border-red-100">
+            Hủy lịch
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Details Modal -->
+<div *ngIf="showDetailsModal()" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-center justify-center min-h-screen p-4 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity" (click)="closeDetailsModal()"></div>
+
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+      <div class="bg-white px-6 pt-6 pb-6">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-xl font-black text-gray-900">Chi tiết lịch hẹn</h3>
+          <button (click)="closeDetailsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="isLoadingDetails()" class="py-12 flex flex-col items-center justify-center">
+          <svg class="w-10 h-10 text-[#C9A447] animate-spin mb-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="text-sm text-gray-500 font-medium">Đang tải thông tin...</p>
+        </div>
+
+        <!-- Details Content -->
+        <div *ngIf="!isLoadingDetails() && selectedDetails()" class="space-y-6">
+          <div class="flex justify-between items-center p-4 bg-gray-50 rounded-2xl border border-gray-100">
+            <div>
+              <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Mã lịch hẹn</p>
+              <p class="text-lg font-black text-gray-900">#{{ selectedDetails()?.id }}</p>
+            </div>
+            <span class="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ring-1 ring-inset {{ getStatusClass(selectedDetails()!.status) }}">
+              {{ getStatusLabel(selectedDetails()!.status) }}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+              <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Ngày hẹn
+              </p>
+              <p class="text-sm font-bold text-gray-900">{{ selectedDetails()?.apptDate | date:'dd/MM/yyyy' }}</p>
+            </div>
+            <div class="p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+              <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Giờ hẹn
+              </p>
+              <p class="text-sm font-bold text-gray-900">{{ selectedDetails()?.startTime?.substring(0,5) }} - {{ selectedDetails()?.endTime?.substring(0,5) }}</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15.546c-.523 0-1.046.151-1.5.454a2.704 2.704 0 01-3 0 2.703 2.703 0 01-3 0 2.703 2.703 0 01-3 0 2.703 2.703 0 01-3 0 2.704 2.704 0 01-1.5-.454V6.454c.454.303.977.454 1.5.454a2.703 2.703 0 013 0 2.703 2.703 0 013 0 2.703 2.703 0 013 0 2.703 2.703 0 013 0c.523 0 1.046-.151 1.5-.454v9.092z"></path></svg>
+              Dịch vụ đã chọn
+            </p>
+            <div class="space-y-3">
+              @for (service of selectedDetails()?.services; track service.id) {
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-700 font-medium">{{ service.serviceName }}</span>
+                  <span class="text-sm text-gray-900 font-bold">{{ service.price | number:'1.0-0' }} đ</span>
+                </div>
+              }
+              <div class="pt-3 border-t border-dashed border-gray-200 flex justify-between items-center">
+                <span class="text-sm font-black text-gray-900">Tổng thanh toán</span>
+                <span class="text-lg font-black text-[#C9A447]">{{ selectedDetails()?.totalPrice | number:'1.0-0' }} đ</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-blue-50/50 border border-blue-100 rounded-2xl">
+            <div class="flex items-center gap-2 mb-2">
+              <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+              </div>
+              <p class="text-xs font-bold text-blue-900">Stylist phụ trách</p>
+            </div>
+            <p class="text-sm font-bold text-blue-800 ml-10">{{ selectedDetails()?.staffName || 'Hệ thống tự xếp' }}</p>
+          </div>
+
+          <div *ngIf="selectedDetails()?.note" class="p-4 bg-gray-50 rounded-2xl">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Ghi chú từ bạn</p>
+            <p class="text-sm text-gray-600 leading-relaxed italic">"{{ selectedDetails()?.note }}"</p>
+          </div>
+
+          <div *ngIf="selectedDetails()?.status === 'CANCELLED' && selectedDetails()?.cancelReason" class="p-4 bg-red-50 rounded-2xl border border-red-100">
+            <p class="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Lý do hủy</p>
+            <p class="text-sm text-red-700 font-medium">{{ selectedDetails()?.cancelReason }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-6 py-4 flex justify-end">
+        <button (click)="closeDetailsModal()" class="px-8 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-bold hover:bg-gray-800 transition-all active:scale-95 shadow-lg shadow-gray-200">
+          Đóng lại
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cancel Dialog Modal -->
+<div *ngIf="showCancelModal()" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    
+    <!-- Background backdrop -->
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity" aria-hidden="true" (click)="closeCancelModal()"></div>
+
+    <!-- Center element trick -->
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+    <!-- Modal panel -->
+    <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Hủy lịch hẹn #{{ selectedApptId() }}</h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500 mb-4">Bạn có chắc chắn muốn hủy lịch hẹn này không? Hành động này không thể hoàn tác.</p>
+              
+              <div *ngIf="cancelError()" class="mb-3 text-sm text-red-600 bg-red-50 p-2 rounded">
+                {{ cancelError() }}
+              </div>
+
+              <label class="block text-sm font-medium text-gray-700 mb-1">Lý do hủy (bắt buộc)</label>
+              <textarea [ngModel]="cancelReason()" (ngModelChange)="cancelReason.set($event)" rows="3" 
+                        class="shadow-sm focus:ring-red-500 focus:border-red-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md p-2" 
+                        placeholder="Vui lòng nhập lý do..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 flex flex-col sm:flex-row-reverse space-y-2 sm:space-y-0">
+        <button type="button" 
+                (click)="submitCancel()"
+                [disabled]="isCancelling()"
+                class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-70">
+          <span *ngIf="!isCancelling()">Xác nhận hủy lịch</span>
+          <span *ngIf="isCancelling()">Đang xử lý...</span>
+        </button>
+        <button type="button" 
+                (click)="closeCancelModal()"
+                [disabled]="isCancelling()"
+                class="w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:w-auto sm:text-sm">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

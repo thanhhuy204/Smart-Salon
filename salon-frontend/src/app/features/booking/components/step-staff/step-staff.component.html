@@ -1,0 +1,61 @@
+<div class="animate-fade-in">
+  <div *ngIf="isLoading()" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+    <div *ngFor="let i of [1,2,3,4,5]" class="h-48 bg-gray-100 rounded-xl animate-pulse"></div>
+  </div>
+
+  <div *ngIf="!isLoading()">
+    <h2 class="text-xl font-bold text-gray-900 mb-6">Chọn Stylist</h2>
+
+    <div *ngIf="error()" class="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+      {{ error() }}
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+      <!-- ANY Staff Option -->
+      <div (click)="selectStaff('ANY')"
+           class="relative border rounded-xl p-4 cursor-pointer transition-all hover:border-gray-400 text-center flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-white h-full min-h-[180px]"
+           [ngClass]="localSelected() === 'ANY' ? 'border-gray-900 ring-2 ring-gray-900' : 'border-gray-200'">
+        
+        <div class="w-16 h-16 rounded-full bg-gray-900 text-white flex items-center justify-center mb-3 shadow-md">
+          <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+          </svg>
+        </div>
+        <h3 class="font-bold text-gray-900 mb-1">Bất kỳ thợ nào</h3>
+        <p class="text-xs text-gray-500">Hệ thống sẽ sắp xếp thợ phù hợp nhất</p>
+      </div>
+
+      <!-- Specific Staff Options -->
+      <div *ngFor="let s of staffs()"
+           (click)="selectStaff(s)"
+           class="relative border rounded-xl p-4 cursor-pointer transition-all hover:border-gray-400 text-center flex flex-col items-center bg-white"
+           [ngClass]="isSelectedStaff(s.id) ? 'border-gray-900 ring-2 ring-gray-900' : 'border-gray-200'">
+        
+        <div class="relative mb-3">
+          <img [src]="s.avatarUrl || 'assets/images/default-avatar.png'" [alt]="s.fullName" class="w-16 h-16 rounded-full object-cover border-2 border-gray-100">
+        </div>
+        
+        <h3 class="font-bold text-gray-900">{{ s.fullName }}</h3>
+        <p class="text-xs text-gray-500 mb-2 truncate w-full">{{ s.bio }}</p>
+        
+        <div class="flex items-center text-xs font-medium text-gray-700 bg-amber-50 px-2 py-1 rounded-md">
+          <span class="text-amber-500 mr-1">★</span>
+          {{ s.averageRating | number:'1.1-1' }}
+          <span class="text-gray-400 mx-1">•</span>
+          {{ s.totalCompletedAppointments }} done
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+      <button (click)="onBack.emit()" class="px-6 py-3 text-gray-600 font-medium hover:text-gray-900 transition-colors">
+        Quay lại
+      </button>
+      <button (click)="handleNext()" 
+              class="px-8 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900">
+        Tiếp theo
+      </button>
+    </div>
+  </div>
+</div>

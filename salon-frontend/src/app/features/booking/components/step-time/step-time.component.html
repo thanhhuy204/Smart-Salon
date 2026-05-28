@@ -1,0 +1,60 @@
+<div class="animate-fade-in">
+  <h2 class="text-xl font-bold text-gray-900 mb-6">Chọn Ngày & Giờ</h2>
+
+  <div *ngIf="error()" class="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+    {{ error() }}
+  </div>
+
+  <div class="mb-8">
+    <label class="block text-sm font-medium text-gray-700 mb-2">Chọn ngày</label>
+    <input type="date" 
+           [min]="minDate"
+           [ngModel]="currentDate()" 
+           (ngModelChange)="currentDate.set($event)"
+           class="w-full md:w-1/2 px-4 py-3 border border-gray-300 rounded-xl focus:ring-gray-900 focus:border-gray-900 shadow-sm cursor-pointer" />
+  </div>
+
+  <div class="mb-8">
+    <label class="block text-sm font-medium text-gray-700 mb-4">Khung giờ hiện có</label>
+
+    <div *ngIf="isLoading()" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <div *ngFor="let i of [1,2,3,4,5,6,7,8]" class="h-12 bg-gray-100 rounded-xl animate-pulse"></div>
+    </div>
+
+    <div *ngIf="!isLoading() && slots().length === 0" class="text-center py-8 bg-gray-50 rounded-xl border border-gray-100">
+      <p class="text-gray-500">Không có khung giờ nào trống trong ngày này. Vui lòng chọn ngày khác.</p>
+    </div>
+
+    <div *ngIf="!isLoading() && slots().length > 0" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+      <button *ngFor="let slot of slots()"
+              [disabled]="!slot.isAvailable"
+              (click)="selectTime(slot)"
+              class="relative px-4 py-3 rounded-xl border text-sm font-medium transition-colors m-0 text-center"
+              [ngClass]="{
+                'border-gray-900 bg-gray-900 text-white shadow-md': currentTime() === slot.startTime,
+                'border-gray-200 text-gray-700 hover:border-gray-400': currentTime() !== slot.startTime && slot.isAvailable,
+                'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed opacity-60': !slot.isAvailable
+              }">
+        {{ slot.startTime.substring(0, 5) }}
+        
+        <!-- Booked Badge -->
+        <span *ngIf="!slot.isAvailable" class="absolute -top-2 -right-2 flex h-4 w-4 rounded-full bg-red-100 items-center justify-center border border-white">
+          <span class="h-2 w-2 rounded-full bg-red-500"></span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="flex items-center justify-between pt-6 border-t border-gray-100 mt-auto">
+    <button (click)="onBack.emit()" class="px-6 py-3 text-gray-600 font-medium hover:text-gray-900 transition-colors">
+      Quay lại
+    </button>
+    <button (click)="handleNext()" 
+            [disabled]="!currentDate() || !currentTime()"
+            class="px-8 py-3 rounded-xl font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+            [ngClass]="(!currentDate() || !currentTime()) ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-gray-900 text-white hover:bg-gray-800'">
+      Tiếp theo
+    </button>
+  </div>
+</div>

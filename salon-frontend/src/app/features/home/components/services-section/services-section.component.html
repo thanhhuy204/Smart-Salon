@@ -1,0 +1,41 @@
+<section class="bg-[#0D1A10] py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-col items-center text-center mb-14 gap-4">
+      <span class="sec-eyebrow">Dịch vụ</span>
+      <h2 class="sec-title-light text-4xl md:text-5xl">Dịch Vụ &amp; Sản Phẩm</h2>
+      <div class="sec-bar-center"></div>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      @for (service of services; track service.name) {
+        <div class="service-card">
+          <div class="service-img-wrap">
+            <img
+              [src]="service.image"
+              [alt]="service.name"
+              class="service-img"
+              loading="lazy"
+            />
+            <div class="service-img-overlay"></div>
+          </div>
+          <div class="service-body">
+            <h3 class="service-name">{{ service.name }}</h3>
+            <p class="service-desc">{{ service.description }}</p>
+            <a
+              routerLink="/booking"
+              class="service-cta"
+              [attr.aria-label]="'Đặt lịch ' + service.name"
+            >
+              Đặt lịch
+              <span class="cta-arrow">→</span>
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+
+  </div>
+</section>

@@ -1,0 +1,44 @@
+<section id="pricing" class="bg-white py-24 px-6">
+  <div class="max-w-6xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-col items-center text-center mb-14 gap-4">
+      <span class="sec-eyebrow">Bộ sưu tập</span>
+      <h2 class="sec-title text-4xl md:text-5xl text-gray-900">Hình Ảnh Kiểu Tóc</h2>
+      <div class="sec-bar-center"></div>
+      <p class="text-gray-400 text-base font-light max-w-md">
+        Khám phá những mẫu tóc mới nhất &amp; đang thịnh hành.
+      </p>
+    </div>
+
+    <!-- Grid ảnh -->
+    <div class="gallery-grid">
+      @for (item of hairstyles; track item.name) {
+        <div class="gallery-item">
+          <img
+            [src]="item.image"
+            [alt]="'Kiểu tóc ' + item.name"
+            class="gallery-img"
+            loading="lazy"
+          />
+          <div class="gallery-overlay">
+            <span class="gallery-name">{{ item.name }}</span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-14">
+      <a
+        routerLink="/booking"
+        aria-label="Đặt lịch ngay"
+        class="inline-block px-12 py-4 bg-gray-900 text-white text-xs font-semibold
+               uppercase tracking-widest hover:bg-[#C9A447] transition-colors duration-300"
+      >
+        Đặt lịch ngay
+      </a>
+    </div>
+
+  </div>
+</section>

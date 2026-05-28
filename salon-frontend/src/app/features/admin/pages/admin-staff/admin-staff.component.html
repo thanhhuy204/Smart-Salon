@@ -1,0 +1,194 @@
+<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Quản lý Nhân Viên</h1>
+    <p class="text-gray-500 text-sm mt-1">Thêm mới, sửa thông tin và đánh giá hiệu suất của Thợ Stylist</p>
+  </div>
+
+  <div class="flex items-center">
+    <button (click)="openAddForm()"
+      class="flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors shadow-sm">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      Thêm nhân viên
+    </button>
+  </div>
+</div>
+
+<!-- Toolbar -->
+<div
+  class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 mb-6 flex flex-wrap gap-4 items-center justify-between">
+  <div class="w-full md:w-96 relative">
+    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+    </div>
+    <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+      placeholder="Tìm Stylist theo tên..."
+      class="w-full pl-9 border-gray-300 rounded-lg shadow-sm focus:border-gray-900 focus:ring-gray-900 text-sm py-2.5">
+  </div>
+
+  <div class="text-sm text-gray-500">
+    Tổng: <strong class="text-gray-900">{{ staffs().length }}</strong> stylist
+  </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="isLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  <div *ngFor="let i of [1,2,3,4]" class="bg-white rounded-2xl h-72 border border-gray-100 animate-pulse"></div>
+</div>
+
+<!-- Grid List -->
+<div *ngIf="!isLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  <div *ngFor="let staff of filteredStaffs()"
+    class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group flex flex-col">
+    <!-- Header Card -->
+    <div class="relative h-24 bg-gray-100 flex-shrink-0">
+      <!-- Status Badge -->
+      <div class="absolute top-3 right-3 px-2 py-1 select-none rounded text-xs font-bold shadow-sm"
+        [ngClass]="staff.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'">
+        {{ staff.isActive ? 'Đang làm việc' : 'Đang tạm nghỉ' }}
+      </div>
+    </div>
+
+    <!-- Avatar (overlapping) -->
+    <div class="px-5 relative z-10 flex justify-between items-end -mt-10 mb-4">
+      <img [src]="staff.avatarUrl || 'assets/images/default-avatar.png'" alt="Avatar"
+        class="w-20 h-20 rounded-full border-4 border-white bg-white object-cover shadow-sm">
+
+      <!-- Action Menu (Visible on hover desktop) -->
+      <div class="flex gap-2">
+        <button (click)="openEditForm(staff)"
+          class="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" title="Sửa thông tin">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+            </path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="px-5 pb-5 flex-1 flex flex-col">
+      <h3 class="text-lg font-bold text-gray-900 mb-1">{{ staff.fullName }}</h3>
+      <p class="text-xs text-gray-500 mb-4 line-clamp-2 min-h-[32px]">{{ staff.bio || 'Chưa cập nhật tiểu sử' }}</p>
+
+      <!-- Stats -->
+      <div class="flex items-center justify-between mb-5 bg-gray-50 p-3 rounded-lg border border-gray-100 mt-auto">
+        <div class="text-center">
+          <div class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Đánh giá</div>
+          <div class="flex items-center justify-center mt-1 text-gray-900 font-bold">
+            <span class="text-amber-500 mr-1">★</span>
+            {{ staff.averageRating | number:'1.1-1' }}
+          </div>
+        </div>
+        <div class="w-px h-8 bg-gray-200"></div>
+        <div class="text-center">
+          <div class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Đã hoàn thành</div>
+          <div class="mt-1 text-gray-900 font-bold">
+            {{ staff.totalCompletedAppointments | number }}
+            <span class="text-xs text-gray-400 font-normal ml-1">Lịch</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="flex gap-2 w-full mt-auto">
+        <button
+          class="flex-1 py-2 bg-white border border-gray-200 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors">
+          Báo cáo KPI
+        </button>
+        <button (click)="toggleStatus(staff)"
+          class="flex-1 py-2 text-sm font-medium rounded-lg transition-colors border"
+          [ngClass]="staff.isActive ? 'bg-orange-50 text-orange-600 border-orange-100 hover:bg-orange-100' : 'bg-green-50 text-green-600 border-green-100 hover:bg-green-100'">
+          {{ staff.isActive ? 'Vô hiệu hóa' : 'Kích hoạt' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- Form Staff Modal -->
+<div *ngIf="showFormModal()" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+  aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-900 bg-opacity-40 transition-opacity" (click)="closeFormModal()"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+    <div
+      class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
+
+      <div class="bg-white px-6 pt-6 pb-4 border-b border-gray-100">
+        <h3 class="text-xl font-bold text-gray-900">{{ isEditing() ? 'Sửa thông tin Thợ' : 'Thêm Stylist mới' }}</h3>
+      </div>
+
+      <div class="p-6">
+        <div *ngIf="formError()" class="mb-5 text-sm text-red-600 bg-red-50 p-3 rounded-lg">{{ formError() }}</div>
+
+        <!-- Image Upload Placeholder -->
+        <div class="mb-5 flex flex-col items-center relative">
+          <label for="staff-avatar-upload"
+            class="w-24 h-24 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors relative overflow-hidden group">
+            <img *ngIf="editingStaff().avatarUrl" [src]="editingStaff().avatarUrl"
+              class="w-full h-full object-cover pointer-events-none">
+            <div *ngIf="!editingStaff().avatarUrl" class="text-gray-400 pointer-events-none">
+              <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z">
+                </path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+            </div>
+            <!-- File Input -->
+            <input id="staff-avatar-upload" type="file" accept="image/*" class="hidden"
+              (change)="onFileSelected($event)">
+          </label>
+          <span class="text-xs text-gray-500 mt-2 font-medium">Tải ảnh đại diện</span>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tên Stylist <span
+                class="text-red-500">*</span></label>
+            <input type="text" [ngModel]="editingStaff().fullName"
+              (ngModelChange)="updateStaffField('fullName', $event)"
+              class="mt-1 focus:ring-gray-900 focus:border-gray-900 block w-full shadow-sm sm:text-sm border-gray-300 rounded-lg py-2">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tiểu sử / Kỹ năng</label>
+            <textarea rows="3" [ngModel]="editingStaff().bio" (ngModelChange)="updateStaffField('bio', $event)"
+              class="mt-1 focus:ring-gray-900 focus:border-gray-900 block w-full shadow-sm sm:text-sm border-gray-300 rounded-lg py-2"
+              placeholder="VD: 5 năm kinh nghiệm mảng uốn hói..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="bg-gray-50 px-6 py-4 flex flex-col sm:flex-row-reverse space-y-2 sm:space-y-0 rounded-b-2xl border-t border-gray-100">
+        <button [disabled]="isSubmitting()" (click)="submitForm()"
+          class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-6 py-2.5 bg-gray-900 text-base font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-75">
+          <span *ngIf="!isSubmitting()">Lưu thông tin</span>
+          <span *ngIf="isSubmitting()" class="flex items-center">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+              </path>
+            </svg>
+            Đang xử lý...
+          </span>
+        </button>
+        <button [disabled]="isSubmitting()" (click)="closeFormModal()"
+          class="w-full inline-flex justify-center rounded-xl border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 sm:w-auto sm:text-sm">
+          Hủy bỏ
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

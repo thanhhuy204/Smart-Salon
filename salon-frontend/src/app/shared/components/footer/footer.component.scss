@@ -1,0 +1,7 @@
+.social-icon {
+  transition: transform 250ms ease, color 250ms ease, border-color 250ms ease;
+
+  &:hover {
+    transform: translateY(-3px);
+  }
+}

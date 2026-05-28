@@ -1,0 +1,82 @@
+<div class="animate-fade-in" *ngIf="state">
+  <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+    <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    Xác nhận thông tin đặt lịch
+  </h2>
+
+  <div class="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
+    <!-- Date & Time -->
+    <div class="flex items-start pb-6 border-b border-gray-200">
+      <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 mr-4 flex-shrink-0">
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-500">Thời gian hẹn</p>
+        <p class="text-lg font-bold text-gray-900 mt-1">
+          {{ state.time?.substring(0, 5) }} - {{ getEndTime() }}
+        </p>
+        <p class="text-md text-gray-700">{{ state.date | date:'EEEE, dd/MM/yyyy' }}</p>
+      </div>
+    </div>
+
+    <!-- Staff -->
+    <div class="flex items-start py-6 border-b border-gray-200">
+      <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 mr-4 flex-shrink-0">
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+      </div>
+      <div>
+        <p class="text-sm font-medium text-gray-500">Stylist thực hiện</p>
+        <p class="text-lg font-bold text-gray-900 mt-1">
+          {{ state.staff === 'ANY' || !state.staff ? 'Bất kỳ thợ nào (Được sắp xếp)' : state.staff.fullName }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Services -->
+    <div class="pt-6">
+      <h3 class="text-sm font-medium text-gray-500 mb-4">Các dịch vụ đã chọn ({{ state.services.length }})</h3>
+      
+      <div class="space-y-3 mb-6">
+        <div *ngFor="let svc of state.services" class="flex justify-between items-start">
+          <div>
+            <p class="font-medium text-gray-900">{{ svc.name }}</p>
+            <p class="text-xs text-gray-500">{{ svc.durationM }} phút</p>
+          </div>
+          <p class="font-medium text-gray-900">{{ svc.price | number }} đ</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-4 rounded-xl border border-gray-200 flex justify-between items-center shadow-sm">
+        <span class="font-medium text-gray-700">Tổng cộng ({{ getTotalDuration() }} phút)</span>
+        <span class="text-2xl font-bold text-gray-900">{{ getTotalPrice() | number }} đ</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-blue-50 text-blue-800 p-4 rounded-xl text-sm mb-8 border border-blue-100 flex items-start">
+    <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <p>Sau khi xác nhận, lịch hẹn của bạn sẽ ở trạng thái Chờ Duyệt. Chúng tôi sẽ gửi thông báo cho bạn sớm nhất có thể. Thanh toán trực tiếp tại Salon nhé!</p>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="flex items-center justify-between pt-6 border-t border-gray-100 mt-auto">
+    <button (click)="onBack.emit()" 
+            [disabled]="isSubmitting"
+            class="px-6 py-3 text-gray-600 font-medium hover:text-gray-900 transition-colors disabled:opacity-50">
+      Quay lại
+    </button>
+    <button (click)="onConfirm.emit()" 
+            [disabled]="isSubmitting"
+            class="relative px-8 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 disabled:opacity-80 disabled:cursor-wait min-w-[180px] overflow-hidden">
+      <span [ngClass]="isSubmitting ? 'opacity-0' : 'opacity-100'">Xác nhận đặt lịch</span>
+      
+      <!-- Spinner -->
+      <div *ngIf="isSubmitting" class="absolute inset-0 flex items-center justify-center">
+        <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    </button>
+  </div>
+</div>

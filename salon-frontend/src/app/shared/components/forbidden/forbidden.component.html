@@ -1,0 +1,47 @@
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-6">
+  <div class="text-center max-w-md">
+
+    <!-- Lock icon -->
+    <div class="flex justify-center mb-6">
+      <div class="w-24 h-24 rounded-full bg-red-50 flex items-center justify-center">
+        <svg class="w-12 h-12 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Error code -->
+    <h1 class="text-5xl font-bold text-gray-200 mb-2">403</h1>
+
+    <!-- Title -->
+    <h2 class="text-xl font-semibold text-gray-700 mb-3">Không có quyền truy cập</h2>
+
+    <!-- Description -->
+    <p class="text-gray-500 text-sm leading-relaxed mb-8">
+      Bạn không có quyền truy cập khu vực quản trị hệ thống.<br/>
+      Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là nhầm lẫn.
+    </p>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-center gap-3 flex-wrap">
+      <a
+        routerLink="/"
+        class="px-6 py-2.5 bg-brand-green text-white text-sm font-semibold
+               rounded-lg hover:bg-brand-green/90 transition-colors duration-200"
+      >
+        Về trang chủ
+      </a>
+
+      @if (isLoggedIn()) {
+        <button
+          (click)="logout()"
+          class="px-6 py-2.5 border border-gray-300 text-gray-700 text-sm font-semibold
+                 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+        >
+          Đăng xuất
+        </button>
+      }
+    </div>
+  </div>
+</div>
