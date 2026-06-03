@@ -45,6 +45,7 @@ public enum ErrorCode {
     APPOINTMENT_NOT_FOUND(404, "Không tìm thấy lịch hẹn"),
     SLOT_UNAVAILABLE(409, "Khung giờ này đã được đặt hoặc bị khóa"),
     INVALID_APPOINTMENT_STATUS(400, "Trạng thái lịch hẹn không hợp lệ cho thao tác này"),
+    ALREADY_REVIEWED(400, "Lịch hẹn này đã được đánh giá trước đó"),
     STAFF_REQUIRED_FOR_CONFIRM(400, "Vui lòng chọn thợ trước khi xác nhận"),
     REASON_REQUIRED(400, "Lý do hủy/từ chối không được để trống"),
 

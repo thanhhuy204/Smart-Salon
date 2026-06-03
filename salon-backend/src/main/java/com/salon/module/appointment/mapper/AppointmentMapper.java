@@ -17,6 +17,7 @@ public interface AppointmentMapper {
     @Mapping(target = "customerPhone", source = "user.phone")
     @Mapping(target = "staffId", source = "staff.id")
     @Mapping(target = "staffName", source = "staff.fullName")
+    @Mapping(target = "isReviewed", ignore = true)
     AppointmentResponse toResponse(Appointment entity);
 
     @Mapping(target = "serviceId", source = "service.id")

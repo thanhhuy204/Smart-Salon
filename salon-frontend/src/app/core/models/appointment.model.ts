@@ -45,4 +45,5 @@ export interface AppointmentModel {
   note?: string;
   cancelReason?: string;
   services: AppointmentServiceSummary[];
+  isReviewed?: boolean;
 }

@@ -20,6 +20,7 @@ import com.salon.module.staff.entity.Staff;
 import com.salon.module.staff.entity.StaffBlockedSlot;
 import com.salon.module.staff.repository.StaffBlockedSlotRepository;
 import com.salon.module.staff.repository.StaffRepository;
+import com.salon.module.staff.repository.StaffReviewRepository;
 import com.salon.module.user.entity.User;
 import com.salon.module.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final SalonWorkingHourRepository salonWorkingHourRepository;
     private final StaffBlockedSlotRepository staffBlockedSlotRepository;
     private final AppointmentMapper appointmentMapper;
+    private final StaffReviewRepository staffReviewRepository;
 
     @Override
     public List<AvailableSlotResponse> getAvailableSlots(LocalDate date, Integer staffId) {
@@ -173,8 +175,14 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointmentPage = appointmentRepository.findByUserIdAndStatus(userId, AppointmentStatus.valueOf(status.toUpperCase()), pageable);
         }
 
+        List<Long> reviewedApptIds = staffReviewRepository.findReviewedAppointmentIdsByUserId(userId);
+
         List<AppointmentResponse> content = appointmentPage.getContent().stream()
-                .map(appointmentMapper::toResponse)
+                .map(appt -> {
+                    AppointmentResponse res = appointmentMapper.toResponse(appt);
+                    res.setIsReviewed(reviewedApptIds.contains(appt.getId()));
+                    return res;
+                })
                 .collect(Collectors.toList());
 
         return PageResponse.<AppointmentResponse>builder()
@@ -196,7 +204,9 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new AppException(ErrorCode.FORBIDDEN);
         }
 
-        return appointmentMapper.toResponse(appointment);
+        AppointmentResponse response = appointmentMapper.toResponse(appointment);
+        response.setIsReviewed(staffReviewRepository.existsByAppointmentId(id));
+        return response;
     }
 
     @Override
@@ -231,8 +241,17 @@ public class AppointmentServiceImpl implements AppointmentService {
             appointmentPage = appointmentRepository.findByStatus(AppointmentStatus.valueOf(status.toUpperCase()), pageable);
         }
 
+        List<Long> apptIds = appointmentPage.getContent().stream()
+                .map(Appointment::getId)
+                .collect(Collectors.toList());
+        List<Long> reviewedApptIds = staffReviewRepository.findReviewedAppointmentIdsIn(apptIds);
+
         List<AppointmentResponse> content = appointmentPage.getContent().stream()
-                .map(appointmentMapper::toResponse)
+                .map(appt -> {
+                    AppointmentResponse res = appointmentMapper.toResponse(appt);
+                    res.setIsReviewed(reviewedApptIds.contains(appt.getId()));
+                    return res;
+                })
                 .collect(Collectors.toList());
 
         return PageResponse.<AppointmentResponse>builder()

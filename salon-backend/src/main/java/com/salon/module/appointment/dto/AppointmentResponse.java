@@ -26,4 +26,5 @@ public class AppointmentResponse {
     private CancelledBy cancelledBy;
     private String note;
     private List<AppointmentServiceDto> services;
+    private Boolean isReviewed;
 }

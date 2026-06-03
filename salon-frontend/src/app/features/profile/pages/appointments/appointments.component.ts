@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AppointmentModel, AppointmentStatus } from '../../../../core/models/appointment.model';
 import { AppointmentService } from '../../../../core/services/appointment.service';
+import { StaffReviewService } from '../../../../core/services/staff-review.service';
+import { StaffReviewModel } from '../../../../core/models/staff-review.model';
 
 type CurrentTab = 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
 
@@ -15,6 +17,7 @@ type CurrentTab = 'UPCOMING' | 'COMPLETED' | 'CANCELLED';
 })
 export class AppointmentsComponent implements OnInit {
   private appointmentService = inject(AppointmentService);
+  private staffReviewService = inject(StaffReviewService);
 
   activeTab = signal<CurrentTab>('UPCOMING');
   appointments = signal<AppointmentModel[]>([]);
@@ -31,6 +34,20 @@ export class AppointmentsComponent implements OnInit {
   cancelReason = signal<string>('');
   isCancelling = signal<boolean>(false);
   cancelError = signal<string | null>(null);
+
+  // Modal Review (Create) State
+  showReviewModal = signal<boolean>(false);
+  selectedReviewAppt = signal<AppointmentModel | null>(null);
+  reviewRating = signal<number>(0);
+  hoverRating = signal<number>(0);
+  reviewComment = signal<string>('');
+  isSubmittingReview = signal<boolean>(false);
+  submitReviewError = signal<string | null>(null);
+
+  // Modal View Review State
+  showViewReviewModal = signal<boolean>(false);
+  currentReviewDetails = signal<StaffReviewModel | null>(null);
+  isLoadingReviewDetails = signal<boolean>(false);
 
   ngOnInit() {
     this.loadAppointments();
@@ -143,5 +160,83 @@ export class AppointmentsComponent implements OnInit {
       case AppointmentStatus.CANCELLED: return 'Đã Hủy';
       default: return status;
     }
+  }
+
+  // --- REVIEW METHODS ---
+  openReviewModal(appt: AppointmentModel) {
+    this.selectedReviewAppt.set(appt);
+    this.reviewRating.set(0);
+    this.hoverRating.set(0);
+    this.reviewComment.set('');
+    this.submitReviewError.set(null);
+    this.isSubmittingReview.set(false);
+    this.showReviewModal.set(true);
+  }
+
+  closeReviewModal() {
+    this.showReviewModal.set(false);
+    this.selectedReviewAppt.set(null);
+  }
+
+  setReviewRating(rating: number) {
+    this.reviewRating.set(rating);
+  }
+
+  submitReview() {
+    const appt = this.selectedReviewAppt();
+    const rating = this.reviewRating();
+    const comment = this.reviewComment().trim();
+
+    if (!appt) return;
+    if (rating < 1 || rating > 5) {
+      this.submitReviewError.set("Vui lòng chọn số sao đánh giá (1-5 sao).");
+      return;
+    }
+
+    this.isSubmittingReview.set(true);
+    this.submitReviewError.set(null);
+
+    this.staffReviewService.createReview({
+      appointmentId: appt.id,
+      rating: rating,
+      comment: comment || undefined
+    }).subscribe({
+      next: () => {
+        this.isSubmittingReview.set(false);
+        this.closeReviewModal();
+        
+        // Update local appointment state so "Đánh giá Stylist" button immediately changes to "Xem đánh giá"
+        this.appointments.update(list => 
+          list.map(item => item.id === appt.id ? { ...item, isReviewed: true } : item)
+        );
+      },
+      error: (err) => {
+        this.isSubmittingReview.set(false);
+        this.submitReviewError.set(err.error?.message || "Không thể gửi đánh giá. Vui lòng thử lại sau.");
+      }
+    });
+  }
+
+  openViewReviewModal(appt: AppointmentModel) {
+    this.selectedReviewAppt.set(appt);
+    this.isLoadingReviewDetails.set(true);
+    this.currentReviewDetails.set(null);
+    this.showViewReviewModal.set(true);
+
+    this.staffReviewService.getReviewByAppointmentId(appt.id).subscribe({
+      next: (res) => {
+        this.currentReviewDetails.set(res.data);
+        this.isLoadingReviewDetails.set(false);
+      },
+      error: () => {
+        this.isLoadingReviewDetails.set(false);
+      }
+    });
+  }
+
+  closeViewReviewModal() {
+    this.showViewReviewModal.set(false);
+    this.currentReviewDetails.set(null);
+    this.selectedReviewAppt.set(null);
   }
 }

@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.salon.security.CustomUserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -22,9 +24,11 @@ public class AppointmentUserController {
     private final AppointmentService appointmentService;
 
     private Long getCurrentUserId() {
-        // TODO: Update once Spring Security context is fully handling UserPrincipal
-        // For development purpose returning 1L to verify compilation and logic
-        return 1L; 
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            return ((CustomUserDetails) principal).getUser().getId();
+        }
+        return 1L; // Fallback
     }
 
     @GetMapping("/available-slots")
