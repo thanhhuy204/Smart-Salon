@@ -27,9 +27,9 @@ export class NavbarComponent {
 
   navLinks: NavLink[] = [
     { label: 'Giới thiệu', routerLink: '/', fragment: 'about' },
-    { label: 'Đặt lịch',   routerLink: '/booking' },
-    { label: 'Bảng giá',   routerLink: '/', fragment: 'pricing' },
-    { label: 'Sản phẩm',   routerLink: '/shop' },
+    { label: 'Đặt lịch', routerLink: '/booking' },
+    //{ label: 'Bảng giá',   routerLink: '/', fragment: 'pricing' },
+    { label: 'Sản phẩm', routerLink: '/shop' },
   ];
 
   @HostListener('window:scroll')
