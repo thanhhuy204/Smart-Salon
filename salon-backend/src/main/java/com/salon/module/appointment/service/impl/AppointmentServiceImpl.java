@@ -77,9 +77,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         }
 
         if (staffId != null) {
+            //Lấy lịch làm việc của thợ
             List<Appointment> bookedAppointments = appointmentRepository
                     .findByStaffIdAndApptDateAndStatusIn(staffId, date, List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED));
-            
+
+            //Lấy các khoảng thời gian thợ bị khóa
             List<StaffBlockedSlot> blockedSlots = staffBlockedSlotRepository
                     .findByStaffIdAndBlockDate(staffId, date);
 
@@ -371,6 +373,30 @@ public class AppointmentServiceImpl implements AppointmentService {
         
         Staff staff = staffRepository.findById(staffId)
                      .orElseThrow(() -> new AppException(ErrorCode.STAFF_NOT_FOUND));
+        
+        // Kiểm tra xem thợ có bị trùng lịch hẹn nào khác không
+        List<Appointment> bookedAppointments = appointmentRepository
+                .findByStaffIdAndApptDateAndStatusIn(staffId, appointment.getApptDate(), List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED));
+
+        boolean hasOverlap = bookedAppointments.stream()
+                .filter(a -> !a.getId().equals(appointment.getId())) // Loại trừ chính lịch hẹn hiện tại
+                .anyMatch(a -> appointment.getStartTime().isBefore(a.getEndTime()) && appointment.getEndTime().isAfter(a.getStartTime()));
+
+        if (hasOverlap) {
+            throw new AppException(ErrorCode.STAFF_BUSY);
+        }
+
+        // Kiểm tra xem thợ có bị khóa khung giờ này không
+        List<StaffBlockedSlot> blockedSlots = staffBlockedSlotRepository
+                .findByStaffIdAndBlockDate(staffId, appointment.getApptDate());
+
+        boolean isBlocked = blockedSlots.stream().anyMatch(b ->
+                appointment.getStartTime().isBefore(b.getEndTime()) && appointment.getEndTime().isAfter(b.getStartTime())
+        );
+
+        if (isBlocked) {
+            throw new AppException(ErrorCode.STAFF_BUSY);
+        }
         
         appointment.setStaff(staff);
         appointmentRepository.save(appointment);

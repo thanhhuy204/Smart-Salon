@@ -162,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // Đổi token từ OTP sang UUID reset token, gia hạn thêm 15 phút
-        String uuid = UUID.randomUUID().toString();
+        String uuid = UUID.randomUUID().toString(); // "e58ed763-928c-4155-bee9-fdbaaadc15f3"
         resetToken.setToken(uuid);
         resetToken.setExpiresAt(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES));
         tokenRepository.save(resetToken);

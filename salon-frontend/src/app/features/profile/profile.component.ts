@@ -155,13 +155,27 @@ export class ProfileComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.isSaving.set(false);
-        this.profileErrorMsg.set(
-          err.status === 409
-            ? 'Số điện thoại đã được sử dụng bởi tài khoản khác.'
-            : 'Cập nhật thất bại. Vui lòng thử lại.'
-        );
+        console.error('Lỗi cập nhật profile:', err);
+        this.profileErrorMsg.set(this.resolveError(err));
       },
     });
+  }
+
+  private resolveError(err: HttpErrorResponse): string {
+    if (err.status === 0) {
+      return 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng.';
+    }
+    if (err.status === 409) {
+      return 'Số điện thoại đã được sử dụng bởi tài khoản khác.';
+    }
+    if (err.error?.data && typeof err.error.data === 'object') {
+      const keys = Object.keys(err.error.data);
+      if (keys.length > 0) {
+        // Return first validation error message
+        return err.error.data[keys[0]];
+      }
+    }
+    return (err.error?.message as string) || 'Cập nhật thất bại. Vui lòng thử lại.';
   }
 
   cancelAppointment(id: number): void {

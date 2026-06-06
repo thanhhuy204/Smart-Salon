@@ -40,6 +40,7 @@ public enum ErrorCode {
     STAFF_NOT_FOUND(404, "Không tìm thấy thợ"),
     STAFF_HAS_APPOINTMENT(409, "Thợ đang có lịch hẹn trong khoảng thời gian này, không thể khóa"),
     STAFF_CANNOT_DELETE(409, "Thợ đang có lịch hẹn, vui lòng vô hiệu hóa thay vì xóa"),
+    STAFF_BUSY(409, "Thợ này đã có lịch hẹn hoặc bị khóa trong khoảng thời gian này"),
 
     // ===== Appointment =====
     APPOINTMENT_NOT_FOUND(404, "Không tìm thấy lịch hẹn"),

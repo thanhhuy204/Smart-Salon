@@ -15,8 +15,8 @@ public class UpdateProfileRequest {
     private String fullName;
 
     @Pattern(
-            regexp = "^(0[3|5|7|8|9])[0-9]{8}$",
-            message = "Số điện thoại không hợp lệ"
+            regexp = "^0\\d{9}$",
+            message = "Số điện thoại không hợp lệ (10 chữ số, bắt đầu bằng 0)"
     )
     private String phone;
 
